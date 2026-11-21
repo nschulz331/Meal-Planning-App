@@ -27,14 +27,13 @@ This project aims to solve those problems through a structured pipeline:
 
 2. **Batch Generation & Anti-Duplicate Context:** Instead of requesting a massive plan in one prompt, meals are generated in controlled batches (e.g., 3 to 5 meals per call). Follow-up requests ("Keep these, add more") pass existing meal names back into the context to prevent duplicate recipes.
   
-(Multiple calls are used because Gemini has a tendency to hallucinate, and using multiple calls reduces the chances of having errors within JSON files; it also eliminates the potential for character response limits, which cut JSON files off halfway, breaking the program, and reducing potential for unwanted token costs)
+(Due to inconsistency with Gemini, it is better to use multiple calls because it reduces the chances of having errors within JSON files, eliminates the potential for character response limits- which cut JSON files off halfway and break the program- and reduces potential for unwanted token costs)
 
 3. **Unique ID State & Two-Step Deletion:** Every generated meal is assigned a unique identifier (`UUID` / index) in the master state store rather than relying on meal names. Users can toggle meal visibility or permanently remove meals using a two-step confirmation guard that prevents accidental deletions across Streamlit reruns.
 
-4. **Client-Side Pantry Diffing:** Users log pre-owned pantry items (e.g., `2 eggs`, `1 cup butter`). Before compiling the first shopping list, the application subtracts existing pantry quantities locally so it requests or prices only net-needed ingredients.
+4. 4. **Standardized Pantry Presets & Client-Side Diffing:** Users log pre-owned pantry items using a searchable `master ingredient list`, preset `unit` selectors, and `quantity` inputs rather than free-text entry. Because both user inventory and Gemini's Pydantic schemas share the exact same standardized ingredient names and units, the app subtracts existing pantry quantities locally with zero string-parsing mismatches—requesting or pricing only net-needed ingredients.
+   *(Additionally, users can optionally instruct the generator to `prioritize pre-owned ingredients` to minimize food waste and reduce grocery trips.)*
   
-( Additionally, an option to have meals planned using preferential usage of pre-owned items minimizes waste and, if optional, presents options to the user that don't specifically require going out to buy ingredients. )
-
 5. **Two-Stage Pricing Separation (`v2.0`):** Location lookup and local store pricing run in a separate pass (`Context 2`) *after* the user has edited and confirmed their final meal list, avoiding wasted API tokens on discarded recipes.
 
 ---
@@ -69,59 +68,58 @@ This project aims to solve those problems through a structured pipeline:
 
 Version Roadmap & Progress
 
-WILL CHECK OFF USING `x` to show that the feature/version is completed 
-
 ***
 
 PHASE 1:
 
 Core Streamlit Prototype (v0.0.1 – v1.0 MAJOR)
 
-[X] v0.0.1: GitHub `README.md` and initial setup files are created. `README.md` has all planned and intended features listed in a clean format for readers. 
+- [X] v0.0.1: GitHub `README.md` and initial setup files are created. `README.md` has all planned and intended features listed in a clean format for readers. 
 
-[] v0.1: Streamlit layout, `st.session_state` setup, and sidebar controls (`meal count`, `diet`, `allergies`, `notes`)
+- [ ] v0.1: Streamlit layout, `st.session_state` setup, and sidebar controls (`meal count`, `diet`, `allergies`, `notes`)
 
-[] v0.2: Pre-owned pantry inventory input UI
+- [ ] v0.2: Searchable preset ingredient catalog (`constants.py`), unit selectors, and pre-owned pantry inventory UI
 
-[] v0.3: Batch sizing and deletion count logic + UI integration
+- [ ] v0.3: Batch sizing and deletion count logic + UI integration
 
-[] v0.4: Gemini API integration and base prompt context
+- [ ] v0.4: Gemini API integration and base prompt context
 
-[] v0.5: Anti-duplicate batch context for follow-up meal generation
+- [ ] v0.5: Anti-duplicate batch context for follow-up meal generation
 
-[] v0.6: Pydantic schemas for strict structured JSON validation
+- [ ] v0.6: Pydantic schemas for strict structured JSON validation
 
-[] v0.7: Unique ID assignment and master state store
+- [ ] v0.7: Unique ID assignment and master state store
 
-[] v0.8: Formatted `meal cards`, `visibility` toggles, two-step `delete confirmation`, and "keep these, add more" workflow
+- [ ] v0.8: Formatted `meal cards`, `visibility` toggles, two-step `delete confirmation`, and "keep these, add more" workflow
 
-[] v0.9: Client-side pantry-diffing engine and live-syncing shopping list
+- [ ] v0.9: Client-side pantry-diffing engine and live-syncing shopping list
 
-[] v1.0: End-to-end polish, hosted deployment, and QR code integration, Update `README.md`
+- [ ] v1.0: End-to-end polish, hosted deployment, and QR code integration, Update `README.md`
 
 ***
 Phase 2: Location, Pricing & Budget Optimization 
 
-(v1.1 – v2.0 MAJOR) (subject to change at later date)
+(v1.1 – v2.0 MAJOR) (subject to change at a later date)
 
-[] v1.1 – `Location`/store inputs
+- [ ] v1.1 – `Location`/store inputs
 
-[] v1.2 – Confirmed state snapshot serializer (probably in JSON format)
+- [ ] v1.2 – Confirmed state snapshot serializer (probably in JSON format)
 
-[] v1.3 – Pricing Pydantic schema
+- [ ] v1.3 – Pricing Pydantic schema
 
-[] v1.4 – Context 2 pricing pass
+- [ ] v1.4 – Context 2 pricing pass
 
-[] v1.5 – Re-pricing diff rules
+- [ ] v1.5 – Re-pricing diff rules
 
-[] v1.6 – `Budget cap` alerts
+- [ ] v1.6 – `Budget cap` alerts
 
-[] v1.7 – Store grouping dropdowns
+- [ ] v1.7 – Store grouping dropdowns
 
-[] v1.8 – Unit-mismatch `fallbacks`
+- [ ] v1.8 – Base unit conversions (auto-converting compatible scales like `g` ↔ `kg` and `ml` ↔ `L` during diffing)
 
-[] v1.9 to v2.0 – `local pricing` check and full polish, finish unfinished ideas and clean up all unknown errors in subversions (ie `v1.9.1, 1.9.2`...)
-[] v2.0 MAJOR: Full Polish + Release 
+- [ ] v1.9 to v2.0 – `local pricing` check and full polish, finish unfinished ideas and clean up all known errors in subversions (ie `v1.9.1, 1.9.2`...)
+
+- [ ] v2.0 MAJOR: Full Polish + Release 
 
 ***
 
