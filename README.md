@@ -31,7 +31,7 @@ This project aims to solve those problems through a structured pipeline:
 
 3. **Unique ID State & Two-Step Deletion:** Every generated meal is assigned a unique identifier (`UUID` / index) in the master state store rather than relying on meal names. Users can toggle meal visibility or permanently remove meals using a two-step confirmation guard that prevents accidental deletions across Streamlit reruns.
 
-4. 4. **Standardized Pantry Presets & Client-Side Diffing:** Users log pre-owned pantry items using a searchable `master ingredient list`, preset `unit` selectors, and `quantity` inputs rather than free-text entry. Because both user inventory and Gemini's Pydantic schemas share the exact same standardized ingredient names and units, the app subtracts existing pantry quantities locally with zero string-parsing mismatches—requesting or pricing only net-needed ingredients.
+4. **Standardized Pantry Presets & Client-Side Diffing:** Users log pre-owned pantry items using a searchable `master ingredient list`, preset `unit` selectors, and `quantity` inputs rather than free-text entry. Because both user inventory and Gemini's Pydantic schemas share the exact same standardized ingredient names and units, the app subtracts existing pantry quantities locally with zero string-parsing mismatches—requesting or pricing only net-needed ingredients.
    *(Additionally, users can optionally instruct the generator to `prioritize pre-owned ingredients` to minimize food waste and reduce grocery trips.)*
   
 5. **Two-Stage Pricing Separation (`v2.0`):** Location lookup and local store pricing run in a separate pass (`Context 2`) *after* the user has edited and confirmed their final meal list, avoiding wasted API tokens on discarded recipes.
