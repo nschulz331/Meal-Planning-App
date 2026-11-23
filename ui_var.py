@@ -1,27 +1,98 @@
-import streamlit as st 
+import streamlit as st
+from master_ingredient_list import MASTER_INGREDIENTS
 
-def render_main_ui(): #the main ui 
+AVAILABLE_UNITS = ["kg", "g"]
+
+
+def render_main_ui():
+    """Render the main page header and primary workspace area."""
     st.title("Meal Planning App")
 
 
 def render_side_bar():
-    # meal specifics, (meal amount units ext.
-    st.sidebar.header("Your Profile and Settings") #header
+    """Render sidebar settings for meal count and default pantry units."""
+    st.sidebar.header("Your Profile and Settings")
 
-    #meal amount config 
+    # Choose whether to pick the meal count with a slider or an exact number box
+    input_mode = st.sidebar.selectbox(
+        "How do you want to choose meal count?",
+        ["Slider", "Number Value"],
+        key="meal_count_input_mode",
+    )
 
-    meal_amount_requested_mode = st.sidebar.selectbox("Pick one", ["Slider", "Number Value"])
-    if meal_amount_requested_mode == "Slider":
-        meal_amount_requested = st.sidebar.slider("Choose How Many Meals Are Planned", 0, 20)
+    # Set a safe default in case an unexpected option ever occurs
+    meal_count = 0
+
+    if input_mode == "Slider":
+        meal_count = st.sidebar.slider(
+            "Choose how many meals are planned",
+            min_value=0,
+            max_value=20,
+            value=0,
+            key="meal_count_slider",
+        )
+    elif input_mode == "Number Value":
+        meal_count = st.sidebar.number_input(
+            "Choose how many meals are planned",
+            min_value=0,
+            max_value=20,
+            value=0,
+            step=1,
+            key="meal_count_number",
+        )
     else:
-        if meal_amount_requested_mode == "Number Value":
-            meal_amount_requested = st.sidebar.number_input("Chose How Many  Meals Are Planned", 0, 20)  
-        else:
-            st.sidebar.write("Please enter how many meals you want")
+        st.sidebar.warning("Please choose how many meals you want.")
 
-    #units for food variable setting
-    units_for_food_ingrediants = st.sidebar.selectbox("Units", ["kilogram ( kg )", "gram ( g )"])
+    # Choose the default weight unit used for new pantry items
+    default_unit = st.sidebar.selectbox(
+        "Default pantry unit",
+        options=AVAILABLE_UNITS,
+        key="default_pantry_unit",
+    )
+
+    return meal_count, default_unit
 
 
-    st.write(meal_amount_requested,"This is how many meals will be made") #remove this after,  only for debug
-    st.write(units_for_food_ingrediants,"this is how the meals will be calculated in ") #remove this after, only for debug
+def render_pantry_ui(default_unit):
+    """Render checkboxes and amount inputs for ingredients currently in the pantry."""
+    st.sidebar.subheader("Pantry ingredients")
+
+    # Ensure default_unit is valid; fall back to "kg" if something unexpected is passed
+    if default_unit not in AVAILABLE_UNITS:
+        default_unit = "kg"
+
+    default_unit_index = AVAILABLE_UNITS.index(default_unit)
+    pantry = {}
+
+    for ingredient in MASTER_INGREDIENTS:
+        is_owned = st.sidebar.checkbox(
+            label=ingredient,
+            key=f"pantry_owned_{ingredient}",
+        )
+
+        # Skip quantity/unit fields unless the user checked this ingredient
+        if not is_owned:
+            continue
+
+        quantity = st.sidebar.number_input(
+            label=f"{ingredient} quantity",
+            min_value=0.0,
+            max_value=9999.0,
+            value=0.0,
+            step=0.1,
+            key=f"pantry_qty_{ingredient}",
+        )
+
+        unit = st.sidebar.selectbox(
+            label=f"{ingredient} unit",
+            options=AVAILABLE_UNITS,
+            index=default_unit_index,
+            key=f"pantry_unit_{ingredient}",
+        )
+
+        pantry[ingredient] = {
+            "quantity": quantity,
+            "unit": unit,
+        }
+
+    return pantry
